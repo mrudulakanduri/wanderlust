@@ -1,3 +1,11 @@
+body{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.container{
+    flex:1;
+}
 .fa-compass{
     color: red;
     font-size: 2rem;
@@ -45,4 +53,12 @@
 .card-img-overlay:hover{
     opacity: 0.2;
     background-color: white;
+}
+
+.btn-add{
+    background-color: red !important;
+    border:none !important;
+}
+.show-img{
+    height: 30vh !important;
 }

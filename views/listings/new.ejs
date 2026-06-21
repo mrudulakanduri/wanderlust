@@ -1,14 +1,42 @@
  <% layout("/layouts/boilerplate") %>
 <body>
-    <h2>Add your new list</h2>
-    <form method="POST" action="/listings">
-        <input name="listing[title]" placeholder="enter the title"><br><br>
-         <input name="listing[description]" placeholder="enter the description"><br><br>
-         <input name="listing[image]" placeholder="enter the image url"><br><br>
-          <input name="listing[price]" placeholder="enter the price" type="number"><br><br>
-           <input name="listing[location]" placeholder="enter the location"><br><br>
-            <input name="listing[country]" placeholder="enter the country"><br><br>
-        <button>submit</button>
-    </form>
+    
+    <div class="row mt-3">
+        <div class="col-8 offset-2">
+            <h2>Add your new list</h2>
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+          <input name="listing[title]" placeholder="enter the title" class="form-control"> 
+    </div>
+    <div class="mb-3">
+       <label for="description" class="form-label">description</label>
+          <textarea name="listing[description]" placeholder="enter the description" class="form-control"></textarea>   
+    </div>
+    <div class="mb-3">
+        <label for="image_url" class="form-label">Image</label>
+          <input name="listing[image]" placeholder="enter the image_url" class="form-control"> 
+    </div>
+   
+    <div class="row">
+        <div class="mb-3 col-md-4">
+        <label for="price" class="form-label">price</label>
+          <input name="listing[price]" placeholder="enter the price" type="number" class="form-control"> 
+    </div>
+    <div class="mb-3 col-md-8">
+        <label for="country" class="form-label">country</label>
+          <input name="listing[country]" placeholder="enter the country" class="form-control"> 
+    </div>
+    </div>
+     <div class="mb-3">
+        <label for="location" class="form-label">location</label>
+          <input name="listing[location]" placeholder="enter the location" class="form-control"> 
+    </div>
+     
+   <button class="btn btn-dark btn-add">add</button>
+   <br><br>
+   </div>
+</div>
+   </body>
+ 
 </body>
  

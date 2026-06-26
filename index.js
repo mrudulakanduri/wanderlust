@@ -7,6 +7,8 @@ const methodoverride=require("method-override");
 const ejsmate = require("ejs-mate");
 const asyncwrap = require("./utils/asyncwrap.js");
 const expresserror = require("./utils/expresserror.js");
+const {listingSchema} = require("./schema.js");
+
 
 
 app.use(express.urlencoded({extended:true}));
@@ -27,6 +29,15 @@ async function main() {
   await mongoose.connect('mongodb://127.0.0.1:27017/Wanderlust');
 }
 
+const validate = (req,res,next) => {
+    let {err} = listingSchema.validate(req.body);
+    if(err){
+        throw new expresserror(404,err);
+    }
+    else
+        next();
+
+}
 
 app.get("/listings",asyncwrap(async(req,res)=>{
     const alllists=await Listing.find({})
@@ -44,7 +55,7 @@ app.get("/listings/:id",asyncwrap(async(req,res)=>{
 
 }));
 
-app.post("/listings",asyncwrap(async(req,res)=>{
+app.post("/listings",validate,asyncwrap(async(req,res)=>{
     let {listing} = req.body;
     let newlisting = new Listing(listing);
     await newlisting.save();
@@ -58,7 +69,7 @@ app.get("/listings/:id/edit",asyncwrap(async(req,res)=>{
    
 }));
 
-app.put("/listings/:id",asyncwrap(async(req,res)=>{
+app.put("/listings/:id",validate,asyncwrap(async(req,res)=>{
     let {id} = req.params;
     await Listing.findByIdAndUpdate(id,req.body.listing);
     res.redirect(`/listings/${id}`);

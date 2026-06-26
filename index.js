@@ -5,13 +5,17 @@ const Listing = require("./models/listing");
 const path = require("path");
 const methodoverride=require("method-override");
 const ejsmate = require("ejs-mate");
-app.set("view engine","ejs");
-app.set("views",path.join(__dirname,"views"));
+const asyncwrap = require("./utils/asyncwrap.js");
+const expresserror = require("./utils/expresserror.js");
+
+
 app.use(express.urlencoded({extended:true}));
 app.use(methodoverride("_method"));
 app.use(express.static(path.join(__dirname,"/public")));
 
 app.engine("ejs",ejsmate);
+app.set("view engine","ejs");
+app.set("views",path.join(__dirname,"views"));
 
 main().then(()=>{
     console.log("connection sucessful");
@@ -24,50 +28,59 @@ async function main() {
 }
 
 
-app.get("/listings",async(req,res)=>{
+app.get("/listings",asyncwrap(async(req,res)=>{
     const alllists=await Listing.find({})
     res.render("listings/index.ejs",{alllists});
-});
+}));
 
 app.get("/listings/new", (req,res)=>{
     res.render("listings/new.ejs");
 });
 
-app.get("/listings/:id",async(req,res)=>{
+app.get("/listings/:id",asyncwrap(async(req,res)=>{
     let {id} = req.params;
     const list = await Listing.findById(id);
     res.render("listings/show.ejs",{list});
 
-});
+}));
 
-app.post("/listings",async(req,res)=>{
+app.post("/listings",asyncwrap(async(req,res)=>{
     let {listing} = req.body;
     let newlisting = new Listing(listing);
     await newlisting.save();
     res.redirect("/listings");
-});
+}));
 
-app.get("/listings/:id/edit",async(req,res)=>{
+app.get("/listings/:id/edit",asyncwrap(async(req,res)=>{
     let {id} = req.params;
     const list = await Listing.findById(id);
     res.render("listings/edit.ejs",{list});
    
-});
+}));
 
-app.put("/listings/:id",async(req,res)=>{
+app.put("/listings/:id",asyncwrap(async(req,res)=>{
     let {id} = req.params;
     await Listing.findByIdAndUpdate(id,req.body.listing);
     res.redirect(`/listings/${id}`);
-});
+}));
 
-app.delete("/listings/:id",async(req,res)=>{
+app.delete("/listings/:id",asyncwrap(async(req,res)=>{
     let {id} = req.params;
     await Listing.findByIdAndDelete(id);
     res.redirect("/listings");
-});
+}));
 
 app.get("/",(req,res)=>{
     res.send("Root is Working");
+});
+
+app.all("*splat",(req,res,next)=>{
+    next(new expresserror(404,"page not found!!"));
+});
+
+app.use((err, req, res, next) => {
+    let { status = 500, message = "something went wrong" } = err;
+    res.render("listings/error.ejs",{message});
 });
 
 app.listen(8080,()=>{

@@ -4,7 +4,7 @@
     <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
     <% for(let lists of alllists) { %>
         <a href="/listings/<%=lists.id%>" class="listing-link">
-            <div class="card" >
+            <div class="card listing-card" >
     <img src="<%=lists.image.url%>" class="card-img-top" alt="listing_image">
     <div class="card-img-overlay"></div>
     <div class="card-body">
@@ -13,7 +13,6 @@
         <!-- <%=lists.description%><br> -->
        &#x20B9; <%= lists.price.toLocaleString("en-IN")%>/Night
     </p>
-    <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
   </div>
 </div>
 <% } %>

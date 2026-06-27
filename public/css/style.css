@@ -29,7 +29,7 @@ body{
 .f-info-links a:hover{
     text-decoration: underline;
 }
-.card{
+.listing-card{
     border: none !important;
     margin-bottom: 2rem;
 }

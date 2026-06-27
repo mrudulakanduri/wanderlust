@@ -118,7 +118,9 @@ app.delete("/listings/:id/reviews/:reviewid",asyncwrap(async(req,res)=>{
     res.redirect(`/listings/${id}`);
 }));
 
- 
+app.get("/", (req, res) => {
+    res.redirect("/listings");
+});
 
 app.all("*splat",(req,res,next)=>{
     next(new expresserror(404,"page not found!!"));

@@ -118,13 +118,12 @@ app.delete("/listings/:id/reviews/:reviewid",asyncwrap(async(req,res)=>{
     res.redirect(`/listings/${id}`);
 }));
 
-app.get("/",(req,res)=>{
-    res.send("Root is Working");
-});
+ 
 
 app.all("*splat",(req,res,next)=>{
     next(new expresserror(404,"page not found!!"));
 });
+
 
 app.use((err, req, res, next) => {
     let { status = 500, message = "something went wrong" } = err;

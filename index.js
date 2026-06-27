@@ -119,7 +119,7 @@ app.delete("/listings/:id/reviews/:reviewid",asyncwrap(async(req,res)=>{
 }));
 
 app.get("/", (req, res) => {
-    res.redirect("/listings");
+    res.redirect("/listings/index.ejs");
 });
 
 app.all("*splat",(req,res,next)=>{

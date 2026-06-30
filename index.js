@@ -1,16 +1,32 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const Listing = require("./models/listing");
 const path = require("path");
 const methodoverride=require("method-override");
 const ejsmate = require("ejs-mate");
-const asyncwrap = require("./utils/asyncwrap.js");
 const expresserror = require("./utils/expresserror.js");
-const {listingSchema,reviewSchema} = require("./schema.js");
-const review = require("./models/reviews.js");
+const session = require("express-session");
+const flash = require("connect-flash");
 
+const sessionOptions={
+    secret : "mysecretsuperkey",
+    resave:false,
+    saveUninitialized : true,
+    cookie:{
+        expires:Date.now() + 7 * 24 *60*60*1000,
+        maxAge:7 * 24 *60*60*1000,
+        httpOnly : true
 
+    },
+    
+};
+
+app.use(session(sessionOptions));
+app.use(flash());
+ 
+ 
+const listings = require("./routes/listing");
+const reviews = require("./routes/reviews");
 
 app.use(express.urlencoded({extended:true}));
 app.use(methodoverride("_method"));
@@ -19,6 +35,9 @@ app.use(express.static(path.join(__dirname,"/public")));
 app.engine("ejs",ejsmate);
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
+
+
+
 
 main().then(()=>{
     console.log("connection sucessful");
@@ -30,96 +49,18 @@ async function main() {
   await mongoose.connect('mongodb://127.0.0.1:27017/Wanderlust');
 }
 
-const validateListing = (req,res,next) => {
-    let {error} = listingSchema.validate(req.body);
-    if(error){
-        throw new expresserror(404,error);
-    }
-    else
-        next();
-
-}
-
-const validateReview = (req,res,next) => {
-    let {error} = reviewSchema.validate(req.body);
-    if(error){
-        throw new expresserror(404,error);
-    }
-    else
-        next();
-
-}
-
-//all listings
-app.get("/listings",asyncwrap(async(req,res)=>{
-    const alllists=await Listing.find({})
-    res.render("listings/index.ejs",{alllists});
-}));
-
-//add new listing
-app.get("/listings/new", (req,res)=>{
-    res.render("listings/new.ejs");
+app.use((req,res,next)=>{
+    res.locals.success =  req.flash("success");
+    res.locals.error =  req.flash("error");
+    next();
 });
 
-//show each listing
-app.get("/listings/:id",asyncwrap(async(req,res)=>{
-    let {id} = req.params;
-    const list = await Listing.findById(id).populate("review");
-    res.render("listings/show.ejs",{list});
+app.use("/listings",listings);
+app.use("/listings/:id/reviews",reviews);
 
-}));
-
-//added new listing
-app.post("/listings",validateListing,asyncwrap(async(req,res)=>{
-    let {listing} = req.body;
-    let newlisting = new Listing(listing);
-    await newlisting.save();
-    res.redirect("/listings");
-}));
-
-//edit listing
-app.get("/listings/:id/edit",asyncwrap(async(req,res)=>{
-    let {id} = req.params;
-    const list = await Listing.findById(id);
-    res.render("listings/edit.ejs",{list});
-   
-}));
-
-//edited listing
-app.put("/listings/:id",validateListing,asyncwrap(async(req,res)=>{
-    let {id} = req.params;
-    await Listing.findByIdAndUpdate(id,req.body.listing);
-    res.redirect(`/listings/${id}`);
-}));
-
-//delete listing
-app.delete("/listings/:id",asyncwrap(async(req,res)=>{
-    let {id} = req.params;
-    await Listing.findByIdAndDelete(id);
-    res.redirect("/listings");
-}));
-
-//review listing
-app.post("/listings/:id/reviews",validateReview,asyncwrap(async(req,res)=>{
-    let listing = await Listing.findById(req.params.id);
-    let newReview = new review(req.body.review);
-    listing.review.push(newReview);
-   await newReview.save();
-   await listing.save();
-    res.redirect(`/listings/${listing._id}`)
-}));
-
-//delete review 
-app.delete("/listings/:id/reviews/:reviewid",asyncwrap(async(req,res)=>{
-    let {id,reviewid}=req.params;
-    
-    await Listing.findByIdAndUpdate(id,{$pull:{review:reviewid}});
-    await review.findByIdAndDelete(reviewid);
-    res.redirect(`/listings/${id}`);
-}));
 
 app.get("/", (req, res) => {
-    res.redirect("/listings");
+    res.send("This is the Root");
 });
 
 app.all("*splat",(req,res,next)=>{

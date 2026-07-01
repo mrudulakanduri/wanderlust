@@ -7,6 +7,9 @@ const ejsmate = require("ejs-mate");
 const expresserror = require("./utils/expresserror.js");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport=require("passport");
+const Localstrategy = require("passport-local").Strategy;
+const User = require("./models/user.js");
 
 const sessionOptions={
     secret : "mysecretsuperkey",
@@ -23,10 +26,24 @@ const sessionOptions={
 
 app.use(session(sessionOptions));
 app.use(flash());
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new Localstrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.use((req,res,next)=>{
+    res.locals.success =  req.flash("success");
+    res.locals.error =  req.flash("error");
+    res.locals.currUser = req.user;
+    next();
+});
  
- 
-const listings = require("./routes/listing");
-const reviews = require("./routes/reviews");
+const listingRouter = require("./routes/listing");
+const reviewRouter = require("./routes/reviews");
+const userRouter = require("./routes/users");
 
 app.use(express.urlencoded({extended:true}));
 app.use(methodoverride("_method"));
@@ -49,14 +66,11 @@ async function main() {
   await mongoose.connect('mongodb://127.0.0.1:27017/Wanderlust');
 }
 
-app.use((req,res,next)=>{
-    res.locals.success =  req.flash("success");
-    res.locals.error =  req.flash("error");
-    next();
-});
 
-app.use("/listings",listings);
-app.use("/listings/:id/reviews",reviews);
+
+app.use("/listings",listingRouter);
+app.use("/listings/:id/reviews",reviewRouter);
+app.use("/",userRouter);
 
 
 app.get("/", (req, res) => {
@@ -69,9 +83,17 @@ app.all("*splat",(req,res,next)=>{
 
 
 app.use((err, req, res, next) => {
-    let { status = 500, message = "something went wrong" } = err;
-    res.render("listings/error.ejs",{message});
+    console.error(err);          // Print the full error
+    console.error(err.stack);    // Print the stack trace
+
+    let { status = 500, message = "Something went wrong" } = err;
+    res.status(status).render("listings/error.ejs", { message });
 });
+
+// app.use((err, req, res, next) => {
+//     let { status = 500, message = "something went wrong" } = err;
+//     res.render("listings/error.ejs",{message});
+// });
 
 app.listen(8080,()=>{
     console.log("app is listening on the port 8080");

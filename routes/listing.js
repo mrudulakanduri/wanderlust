@@ -4,7 +4,7 @@ const router = express.Router({mergeParams:true});
 const asyncwrap = require("../utils/asyncwrap.js");
 const expresserror = require("../utils/expresserror.js");
 const {listingSchema,reviewSchema} = require("../schema.js");
-
+const {isLoggedIn} = require("../middleware");
 
 
 
@@ -27,7 +27,7 @@ router.get("/",asyncwrap(async(req,res)=>{
 }));
 
 //add new listing
-router.get("/new", (req,res)=>{
+router.get("/new",isLoggedIn, (req,res)=>{
     res.render("listings/new.ejs");
 });
 
@@ -53,7 +53,7 @@ router.post("/",validateListing,asyncwrap(async(req,res)=>{
 }));
 
 //edit listing
-router.get("/:id/edit",asyncwrap(async(req,res)=>{
+router.get("/:id/edit",isLoggedIn,asyncwrap(async(req,res)=>{
     let {id} = req.params;
     const list = await Listing.findById(id);
      if(!list){
@@ -66,7 +66,7 @@ router.get("/:id/edit",asyncwrap(async(req,res)=>{
 }));
 
 //edited listing
-router.put("/:id",validateListing,asyncwrap(async(req,res)=>{
+router.put("/:id",isLoggedIn,validateListing,asyncwrap(async(req,res)=>{
     let {id} = req.params;
     await Listing.findByIdAndUpdate(id,req.body.listing);
      req.flash("success","listing updated");
@@ -74,7 +74,7 @@ router.put("/:id",validateListing,asyncwrap(async(req,res)=>{
 }));
 
 //delete listing
-router.delete("/:id",asyncwrap(async(req,res)=>{
+router.delete("/:id",isLoggedIn,asyncwrap(async(req,res)=>{
     let {id} = req.params;
     await Listing.findByIdAndDelete(id);
     req.flash("success","listing deleted");

@@ -6,6 +6,9 @@ const methodoverride=require("method-override");
 const ejsmate = require("ejs-mate");
 const expresserror = require("./utils/expresserror.js");
 const session = require("express-session");
+
+const MongoStore = require("connect-mongo");
+
 const flash = require("connect-flash");
 const passport=require("passport");
 const Localstrategy = require("passport-local").Strategy;

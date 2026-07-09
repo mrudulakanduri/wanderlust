@@ -44,9 +44,9 @@ app.use((req,res,next)=>{
     next();
 });
  
-const listingRouter = require("./routes/listing");
-const reviewRouter = require("./routes/reviews");
-const userRouter = require("./routes/users");
+const listingRouter = require("./routes/listing.js");
+const reviewRouter = require("./routes/reviews.js");
+const userRouter = require("./routes/users.js");
 
 app.use(express.urlencoded({extended:true}));
 app.use(methodoverride("_method"));
@@ -76,9 +76,7 @@ app.use("/listings/:id/reviews",reviewRouter);
 app.use("/",userRouter);
 
 
-app.get("/", (req, res) => {
-    res.send("This is the Root");
-});
+ 
 
 app.all("*splat",(req,res,next)=>{
     next(new expresserror(404,"page not found!!"));

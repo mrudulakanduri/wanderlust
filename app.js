@@ -19,7 +19,9 @@ const passport = require("passport");
 const Localstrategy = require("passport-local").Strategy;
 const User = require("./models/user.js");
 
-const dbUrl = process.env.ATLASDB_URL;
+const dbUrl = process.env.MONGO_ATLAS;
+console.log("DB URL =", dbUrl);
+
 
 const store = MongoStore.create({
     mongoUrl: dbUrl,

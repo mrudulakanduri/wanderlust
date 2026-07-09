@@ -62,3 +62,8 @@ body{
 .show-img{
     height: 30vh !important;
 }
+#map { 
+    height:400px;
+    width: 100vh;
+
+}

@@ -1,51 +1,20 @@
-const mongoose = require("mongoose");
-const review = require("./reviews.js");
-const { listingSchema } = require("../schema");
-const user = require("./user.js");
+const mongoose = require("mongoose");;
 
-const ListingSchema = mongoose.Schema({
-    title:{
+const reviewSchema = new mongoose.Schema({
+    comment:{
         type:String,
-        required:true,
     },
-    description:String,
-     image: {
-        filename: { type: String },
-        url: {
-            type: String,
-            default: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=60",
-            set: (v) =>
-                v === ""
-                ? "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=60"
-                : v,
-        },
+    rating:{
+        type:Number,
+        min:1,
+        max:5,
     },
-   
-    price:Number,
-    location:String,
-    country:String,
-    review:[
-        {
-            type : mongoose.Schema.Types.ObjectId,
-            ref : "review",
-        },
-    ],
-    owner:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User"
-    }
+    createdAt:{
+        type:Date,
+        default:Date.now(),
+    },
 });
 
-ListingSchema.post("findOneAndDelete", async (listing) => {
-    if (listing) {
-        await review.deleteMany({
-            _id: { $in: listing.review }
-        });
-         
-    }
-});
- 
-const Listing = mongoose.model("Listing",ListingSchema);
+const review = new mongoose.model("review",reviewSchema);
 
-module.exports=Listing;
-
+module.exports = review;

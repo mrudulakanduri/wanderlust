@@ -1,5 +1,7 @@
 const Listing = require("./models/listing");
 const Review = require("./models/reviews");
+const {listingSchema, reviewSchema} = require("./schema.js");
+const expresserror = require("./utils/expresserror.js");
 
 module.exports.isLoggedIn=(req,res,next)=>{
     if(!req.isAuthenticated()){
@@ -38,4 +40,24 @@ module.exports.isAuthor = async (req, res, next) => {
     }
 
     next();
+};
+
+
+
+module.exports.validateListing = (req,res,next) => {
+    let {error} = listingSchema.validate(req.body);
+    if(error){
+        throw new expresserror(404,error);
+    }
+    else
+        next();
+};
+
+module.exports.validateReview = (req,res,next) => {
+    let {error} = reviewSchema.validate(req.body);
+    if(error){
+        throw new expresserror(404,error);
+    }
+    else
+        next();
 };
